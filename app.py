@@ -1,28 +1,36 @@
+import streamlit as st
+from transformers import pipeline
+
+# -------------------------------
+# Page Configuration
+# -------------------------------
+st.set_page_config(
+    page_title="Sentiment Analysis App",
+    page_icon="💬",
+    layout="centered"
+)
+
 # -------------------------------
 # Custom CSS for Better UI
 # -------------------------------
 st.markdown("""
 <style>
-/* Main background */
 .stApp {
     background: linear-gradient(to right, #f8fbff, #eef2f7);
 }
 
-/* Title styling */
 h1 {
     color: #1f4fd8;
     text-align: center;
     font-weight: 700;
 }
 
-/* Text area styling */
 textarea {
     border-radius: 12px !important;
     border: 1px solid #d0d7e2 !important;
     font-size: 16px !important;
 }
 
-/* Button styling */
 .stButton>button {
     background-color: #1f4fd8;
     color: white;
@@ -35,10 +43,8 @@ textarea {
 
 .stButton>button:hover {
     background-color: #163bbf;
-    color: white;
 }
 
-/* Result boxes */
 .stSuccess {
     background-color: #e6fffa;
     border-left: 6px solid #00b894;
@@ -48,25 +54,8 @@ textarea {
     background-color: #ffeaea;
     border-left: 6px solid #d63031;
 }
-
-/* Footer */
-footer {
-    visibility: hidden;
-}
 </style>
 """, unsafe_allow_html=True)
-
-
-import streamlit as st
-from transformers import pipeline
-# -------------------------------
-# Page Configuration
-# -------------------------------
-st.set_page_config(
-    page_title="Sentiment Analysis App",
-    page_icon="💬",
-    layout="centered"
-)
 
 # -------------------------------
 # Load Sentiment Model
@@ -78,57 +67,8 @@ def load_model():
 sentiment_model = load_model()
 
 # -------------------------------
-# App Title & Description
+# Header Card
 # -------------------------------
-st.title("💬 Sentiment Analysis Application")
-st.write(
-    """
-    This application uses **Hugging Face Transformers** to analyze the  
-    **sentiment of a given text** and classify it as **Positive or Negative**.
-    """
-)
-
-st.divider()
-
-# -------------------------------
-# User Input
-# -------------------------------
-text_input = st.text_area(
-    "✍️ Enter your text below:",
-    placeholder="Example: I don't like the game",
-    height=120
-)
-
-# -------------------------------
-# Analyze Button
-# -------------------------------
-col1, col2, col3 = st.columns([1, 2, 1])
-
-with col2:
-    analyze = st.button("🔍 Analyze Sentiment")
-
-    if text_input.strip() == "":
-        st.warning("⚠️ Please enter some text to analyze.")
-    else:
-        st.subheader("📊 Sentiment Result")
-
-if label == "POSITIVE":
-    st.success(f"😊 Positive Sentiment\n\nConfidence: {score:.2f}")
-else:
-    st.error(f"😞 Negative Sentiment\n\nConfidence: {score:.2f}")
-["score"]
-
-        # -------------------------------
-        # Display Result
-        # -------------------------------
-        st.subheader("📊 Analysis Result")
-
-        if label == "POSITIVE":
-            st.success(f"😊 **Sentiment:** {label}")
-        else:
-            st.error(f"😞 **Sentiment:** {label}")
-
-        st.write(f"**Confidence Score:** `{score:.2f}`")
 st.markdown("""
 <div style="
     background-color:#ffffff;
@@ -147,11 +87,45 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.write("")  # spacing
+st.write("")
+
+# -------------------------------
+# User Input
+# -------------------------------
+text_input = st.text_area(
+    "✍️ Enter your text below:",
+    placeholder="Example: I don't like the game",
+    height=120
+)
+
+# -------------------------------
+# Centered Button
+# -------------------------------
+col1, col2, col3 = st.columns([1, 2, 1])
+
+with col2:
+    analyze = st.button("🔍 Analyze Sentiment")
+
+# -------------------------------
+# Sentiment Analysis Logic
+# -------------------------------
+if analyze:
+    if text_input.strip() == "":
+        st.warning("⚠️ Please enter some text to analyze.")
+    else:
+        result = sentiment_model(text_input)[0]
+        label = result["label"]
+        score = result["score"]
+
+        st.subheader("📊 Sentiment Result")
+
+        if label == "POSITIVE":
+            st.success(f"😊 **Positive Sentiment**\n\nConfidence: `{score:.2f}`")
+        else:
+            st.error(f"😞 **Negative Sentiment**\n\nConfidence: `{score:.2f}`")
 
 # -------------------------------
 # Footer
 # -------------------------------
 st.divider()
 st.caption("🚀 Built with Streamlit & Hugging Face Transformers | Author: Meher Kamdi")
-
